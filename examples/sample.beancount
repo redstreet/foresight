@@ -1,0 +1,343 @@
+option "title" "Foresight Sample Ledger"
+option "operating_currency" "USD"
+
+; Run with:
+;   BEANCOUNT_FILE=examples/sample.beancount marimo run main.py
+;
+; This ledger is deliberately small, but it includes the ingredients used by
+; every Foresight module: asset allocation metadata, commodity leaf accounts,
+; brokerage names, beneficiary metadata, ownership metadata, taxable lots,
+; dividend reinvestment, retirement contribution queries, liabilities, and
+; multi-year expenses.
+
+2010-01-01 custom "foresight" "foresight" "{
+  'investments': {
+    'breakdown': {
+      'brokerages': ['Fidelity', 'Vanguard', 'Schwab']
+    },
+    'asset_allocation': {
+      'accounts_pattern': '^Assets:Investments',
+      'tax_adjustment': False
+    },
+    'cash_drag': {
+      'accounts_pattern': '^Assets',
+      'accounts_exclude_pattern': '',
+      'metadata_label_cash': 'asset_allocation_Bond_Cash',
+      'min_threshold': 0
+    }
+  },
+  'taxes': {
+    'gains_minimizer': {
+      'accounts_pattern': '^Assets:Investments:Taxable',
+      'account_field': 'parent',
+      'currency': 'USD',
+      'st_tax_rate': 30.0,
+      'lt_tax_rate': 15.0
+    }
+  }
+}"
+
+2024-01-01 custom "foresight-limits" "2024"
+  pretax-401k-employee: 23000
+  pretax-401k-match: 5000
+  after-tax: 10000
+  total-limit: 38000
+  hsa-limit: 8300
+  roth: 7000
+
+2025-01-01 custom "foresight-limits" "2025"
+  pretax-401k-employee: 23500
+  pretax-401k-match: 5500
+  after-tax: 12000
+  total-limit: 41000
+  hsa-limit: 8550
+  roth: 7000
+
+2026-01-01 custom "foresight-limits" "2026"
+  pretax-401k-employee: 24000
+  pretax-401k-match: 6000
+  after-tax: 14000
+  total-limit: 44000
+  hsa-limit: 8750
+  roth: 7500
+
+2020-01-01 commodity USD
+2020-01-01 commodity VTI
+  asset_allocation_stocks_us: "100"
+2020-01-01 commodity VXUS
+  asset_allocation_stocks_international: "100"
+2020-01-01 commodity BND
+  asset_allocation_bonds_core: "100"
+2020-01-01 commodity VNQ
+  asset_allocation_realestate_reits: "100"
+2020-01-01 commodity FDRXX
+  asset_allocation_Bond_Cash: "100"
+
+2020-01-01 open Assets:Banks:Checking USD
+  estate_info_community_property: "Community Prop"
+  estate_info_title: "Joint Checking"
+  estate_info_beneficiary_last_verified: "2026-01-15"
+  estate_info_trusted_contacts: "Alex Sample"
+  estate_info_beneficiary_primary: "N/A"
+  estate_info_beneficiary_contingent: "N/A"
+
+2020-01-01 open Assets:Banks:Savings USD
+  estate_info_community_property: "Community Prop"
+  estate_info_title: "Joint Savings"
+  estate_info_beneficiary_last_verified: "2026-01-15"
+  estate_info_trusted_contacts: "Alex Sample"
+  estate_info_beneficiary_primary: "Family Trust"
+  estate_info_beneficiary_contingent: "N/A"
+
+2020-01-01 open Assets:RealEstate:Home USD
+  estate_info_community_property: "Community Prop"
+  estate_info_title: "Family Trust"
+  estate_info_beneficiary_last_verified: "2025-12-01"
+  estate_info_trusted_contacts: "Attorney Example"
+  estate_info_beneficiary_primary: "Family Trust"
+  estate_info_beneficiary_contingent: "Children equally"
+
+2020-01-01 open Assets:Investments:Taxable:Fidelity USD,VTI,VXUS,FDRXX
+  estate_info_community_property: "Separate Prop - Pat"
+  estate_info_title: "Pat Revocable Trust"
+  estate_info_beneficiary_last_verified: "2026-02-01"
+  estate_info_trusted_contacts: "Casey Advisor"
+  estate_info_beneficiary_primary: "Family Trust"
+  estate_info_beneficiary_contingent: "Children equally"
+2020-01-01 open Assets:Investments:Taxable:Fidelity:VTI VTI
+2020-01-01 open Assets:Investments:Taxable:Fidelity:VXUS VXUS
+2020-01-01 open Assets:Investments:Taxable:Fidelity:FDRXX FDRXX
+
+2020-01-01 open Assets:Investments:Taxable:Vanguard USD,VNQ
+  estate_info_community_property: "Community Prop"
+  estate_info_title: "Individual TOD"
+  estate_info_beneficiary_last_verified: "2025-10-12"
+  estate_info_trusted_contacts: "Casey Advisor"
+  estate_info_beneficiary_primary: "Jamie Sample"
+  estate_info_beneficiary_contingent: "Family Trust"
+2020-01-01 open Assets:Investments:Taxable:Vanguard:VNQ VNQ
+
+2020-01-01 open Assets:Investments:Tax-Deferred:Fidelity401k USD,VTI,BND
+  estate_info_community_property: "Community Prop"
+  estate_info_title: "Retirement Trust"
+  estate_info_beneficiary_last_verified: "2026-03-01"
+  estate_info_trusted_contacts: "Plan Administrator"
+  estate_info_beneficiary_primary: "Family Trust"
+  estate_info_beneficiary_contingent: "Children equally"
+  asset_allocation_tax_adjustment: "0.75"
+2020-01-01 open Assets:Investments:Tax-Deferred:Fidelity401k:VTI VTI
+2020-01-01 open Assets:Investments:Tax-Deferred:Fidelity401k:BND BND
+
+2020-01-01 open Assets:Investments:Tax-Free:SchwabRoth USD,VTI,VXUS
+  estate_info_community_property: "Separate Prop - Robin"
+  estate_info_title: "Roth IRA Trust"
+  estate_info_beneficiary_last_verified: "2026-03-15"
+  estate_info_trusted_contacts: "Schwab Team"
+  estate_info_beneficiary_primary: "Family Trust"
+  estate_info_beneficiary_contingent: "N/A"
+2020-01-01 open Assets:Investments:Tax-Free:SchwabRoth:VTI VTI
+2020-01-01 open Assets:Investments:Tax-Free:SchwabRoth:VXUS VXUS
+
+2020-01-01 open Assets:Investments:HSA:Fidelity USD,VTI,FDRXX
+  estate_info_community_property: "Community Prop"
+  estate_info_title: "HSA"
+  estate_info_beneficiary_last_verified: "2026-04-01"
+  estate_info_trusted_contacts: "Fidelity HSA Desk"
+  estate_info_beneficiary_primary: "Robin Sample"
+  estate_info_beneficiary_contingent: "Family Trust"
+2020-01-01 open Assets:Investments:HSA:Fidelity:VTI VTI
+2020-01-01 open Assets:Investments:HSA:Fidelity:FDRXX FDRXX
+
+2020-01-01 open Assets:Investments:Taxable:OldBroker USD,VTI
+  estate_info_beneficiary_skip: TRUE
+2020-01-01 close Assets:Investments:Taxable:OldBroker
+
+2020-01-01 open Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kEmployee USD
+2020-01-01 open Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kMatch USD
+2020-01-01 open Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kAfterTax USD
+
+2020-01-01 open Equity:Opening-Balances
+2020-01-01 open Income:Employment:Acme:Salary USD
+2020-01-01 open Income:Employment:Acme:Match USD
+2020-01-01 open Income:Investments:Taxable:Dividend USD
+2020-01-01 open Income:Investments:HSA:Dividend USD
+2020-01-01 open Income:Investments:Roth:Dividend USD
+2020-01-01 open Income:Investments:401k:Dividend USD
+2020-01-01 open Expenses:Food:Groceries USD
+2020-01-01 open Expenses:Housing:MortgageInterest USD
+2020-01-01 open Expenses:Travel:Vacation USD
+2020-01-01 open Expenses:Healthcare:Medical USD
+2020-01-01 open Expenses:Taxes:Federal USD
+2020-01-01 open Liabilities:Mortgage USD
+
+2020-01-01 * "Opening balances"
+  Assets:Banks:Checking                                 10,000.00 USD
+  Assets:Banks:Savings                                  25,000.00 USD
+  Assets:RealEstate:Home                               650,000.00 USD
+  Liabilities:Mortgage                                -300,000.00 USD
+  Equity:Opening-Balances
+
+2021-01-10 * "Opening taxable Fidelity lots"
+  Assets:Investments:Taxable:Fidelity:VTI                  80.00 VTI {180.00 USD, 2021-01-10}
+  Assets:Investments:Taxable:Fidelity:VXUS                 120.00 VXUS {55.00 USD, 2021-01-10}
+  Equity:Opening-Balances
+
+2022-06-15 * "Opening Vanguard REIT lot"
+  Assets:Investments:Taxable:Vanguard:VNQ                   40.00 VNQ {90.00 USD, 2022-06-15}
+  Equity:Opening-Balances
+
+2023-04-01 * "Opening retirement positions"
+  Assets:Investments:Tax-Deferred:Fidelity401k:VTI         100.00 VTI {190.00 USD, 2023-04-01}
+  Assets:Investments:Tax-Deferred:Fidelity401k:BND         250.00 BND {72.00 USD, 2023-04-01}
+  Assets:Investments:Tax-Free:SchwabRoth:VTI                30.00 VTI {200.00 USD, 2023-04-01}
+  Assets:Investments:Tax-Free:SchwabRoth:VXUS               70.00 VXUS {52.00 USD, 2023-04-01}
+  Assets:Investments:HSA:Fidelity:VTI                       15.00 VTI {205.00 USD, 2023-04-01}
+  Assets:Investments:HSA:Fidelity:FDRXX                  1,000.00 FDRXX {1.00 USD, 2023-04-01}
+  Equity:Opening-Balances
+
+2024-01-05 * "Acme" "January paycheck"
+  Assets:Banks:Checking                                  8,000.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kEmployee 1,500.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kMatch    400.00 USD
+  Expenses:Taxes:Federal                                 2,100.00 USD
+  Income:Employment:Acme:Salary
+
+2024-01-08 * "Payroll" "401k contributions invested"
+  Assets:Investments:Tax-Deferred:Fidelity401k:VTI          7.50 VTI {200.00 USD}
+  Assets:Investments:Tax-Deferred:Fidelity401k:BND          5.00 BND {80.00 USD}
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kEmployee -1,500.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kMatch    -400.00 USD
+
+2024-02-01 * "Fidelity" "Taxable contribution"
+  Assets:Investments:Taxable:Fidelity:VTI                  10.00 VTI {200.00 USD}
+  Assets:Banks:Checking                                  -2,000.00 USD
+
+2024-03-15 * "Fidelity" "Cash dividend"
+  Assets:Investments:Taxable:Fidelity:FDRXX               300.00 FDRXX {1.00 USD}
+  Income:Investments:Taxable:Dividend                    -300.00 USD
+
+2024-06-01 * "Fidelity" "HSA personal contribution"
+  Assets:Investments:HSA:Fidelity:FDRXX                 2,000.00 FDRXX {1.00 USD}
+  Assets:Banks:Checking                                 -2,000.00 USD
+
+2024-07-01 * "Schwab" "Backdoor Roth contribution"
+  Assets:Investments:Tax-Free:SchwabRoth:VTI               25.00 VTI {220.00 USD}
+  Assets:Banks:Checking                                 -5,500.00 USD
+
+2024-12-31 * "Expenses" "Sample annual spending"
+  Expenses:Food:Groceries                               12,000.00 USD
+  Expenses:Housing:MortgageInterest                     18,000.00 USD
+  Expenses:Travel:Vacation                               5,000.00 USD
+  Assets:Banks:Checking
+
+2025-01-05 * "Acme" "January paycheck"
+  Assets:Banks:Checking                                  8,300.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kEmployee 1,600.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kMatch    450.00 USD
+  Expenses:Taxes:Federal                                 2,200.00 USD
+  Income:Employment:Acme:Salary
+
+2025-01-08 * "Payroll" "401k contributions invested"
+  Assets:Investments:Tax-Deferred:Fidelity401k:VTI          8.00 VTI {200.00 USD}
+  Assets:Investments:Tax-Deferred:Fidelity401k:BND          6.00 BND {75.00 USD}
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kEmployee -1,600.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kMatch    -450.00 USD
+
+2025-03-15 * "Fidelity" "Dividend paid as cash"
+  Assets:Investments:Taxable:Fidelity:FDRXX               240.00 FDRXX {1.00 USD}
+  Income:Investments:Taxable:Dividend                    -240.00 USD
+
+2025-03-15 * "Fidelity" "Dividend reinvested"
+  Assets:Investments:Taxable:Fidelity:VTI                   1.00 VTI {240.00 USD}
+  Assets:Investments:Taxable:Fidelity:FDRXX              -240.00 FDRXX {1.00 USD, 2025-03-15}
+
+2025-04-01 * "Fidelity" "HSA employer contribution"
+  Assets:Investments:HSA:Fidelity:FDRXX                 1,200.00 FDRXX {1.00 USD}
+  Income:Employment:Acme:Match                         -1,200.00 USD
+
+2025-05-01 * "Fidelity" "HSA investment"
+  Assets:Investments:HSA:Fidelity:VTI                       5.00 VTI {240.00 USD}
+  Assets:Investments:HSA:Fidelity:FDRXX                -1,200.00 FDRXX {1.00 USD, 2025-04-01}
+
+2025-07-01 * "Schwab" "Backdoor Roth contribution"
+  Assets:Investments:Tax-Free:SchwabRoth:VXUS              90.91 VXUS {55.00 USD}
+  Assets:Banks:Checking                                 -5,000.05 USD
+
+2025-12-31 * "Expenses" "Sample annual spending"
+  Expenses:Food:Groceries                               13,500.00 USD
+  Expenses:Housing:MortgageInterest                     17,000.00 USD
+  Expenses:Healthcare:Medical                            3,000.00 USD
+  Assets:Banks:Checking
+
+2026-01-05 * "Acme" "January paycheck"
+  Assets:Banks:Checking                                  8,500.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kEmployee 1,700.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kMatch    500.00 USD
+  Expenses:Taxes:Federal                                 2,300.00 USD
+  Income:Employment:Acme:Salary
+
+2026-01-08 * "Payroll" "401k contributions invested"
+  Assets:Investments:Tax-Deferred:Fidelity401k:VTI          8.50 VTI {200.00 USD}
+  Assets:Investments:Tax-Deferred:Fidelity401k:BND          6.25 BND {80.00 USD}
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kEmployee -1,700.00 USD
+  Assets:ZEmployer:Transfers:MonthlyPaycheck:Y401kMatch    -500.00 USD
+
+2026-02-01 * "Fidelity" "Taxable contribution"
+  Assets:Investments:Taxable:Fidelity:VXUS                 36.36 VXUS {55.00 USD}
+  Assets:Banks:Checking                                 -1,999.80 USD
+
+2026-04-15 * "Fidelity" "Taxable dividend reinvested in same transaction"
+  Assets:Investments:Taxable:Fidelity:VXUS                  4.00 VXUS {55.00 USD}
+  Income:Investments:Taxable:Dividend                    -220.00 USD
+
+2026-05-01 * "Fidelity" "HSA personal contribution"
+  Assets:Investments:HSA:Fidelity:FDRXX                 1,500.00 FDRXX {1.00 USD}
+  Assets:Banks:Checking                                 -1,500.00 USD
+
+2026-06-01 * "Expenses" "Current year spending"
+  Expenses:Food:Groceries                                6,500.00 USD
+  Expenses:Housing:MortgageInterest                      8,000.00 USD
+  Expenses:Healthcare:Medical                            1,200.00 USD
+  Assets:Banks:Checking
+
+2026-06-10 price VTI 250.00 USD
+2026-06-10 price VXUS 58.00 USD
+2026-06-10 price BND 79.00 USD
+2026-06-10 price VNQ 95.00 USD
+2026-06-10 price FDRXX 1.00 USD
+2026-06-10 price USD 1.00 USD
+
+2020-01-01 query "Annual contributions: HSA via Personal Contributions" "
+  SELECT
+    year(date) as year,
+    sum(convert(position, 'USD')) as amount
+  WHERE
+    account = 'Assets:Investments:HSA:Fidelity:FDRXX' AND
+    other_accounts ~ 'Assets:Banks:Checking'
+  GROUP BY year
+  ORDER BY year
+"
+
+2020-01-01 query "Annual contributions: HSA via Paycheck Deductions" "
+  SELECT
+    year(date) as year,
+    account,
+    sum(convert(position, 'USD')) as amount
+  WHERE
+    account ~ '^Assets:Investments:HSA' AND
+    other_accounts ~ '^Income:Employment'
+  GROUP BY year, account
+  ORDER BY year, account
+"
+
+2020-01-01 query "Annual contributions: Roth" "
+  SELECT
+    year(date) as year,
+    account,
+    number(sum(position)) as number
+  WHERE
+    account ~ '^Assets:Investments:Tax-Free:SchwabRoth' AND
+    other_accounts ~ 'Assets:Banks:Checking'
+  GROUP BY year, account
+  ORDER BY year, account
+"

@@ -1,0 +1,19 @@
+- Prefer minimal diffs. Preserve existing marimo cell structure unless a bug requires refactor.
+- Use `apply_patch` for manual file edits.
+- Serialize git operations:
+  - no parallel git commands
+  - after each change, stage changed files and commit with a short conventional-commit message
+- Do not amend commits.
+- Do not revert unrelated user changes.
+- Prefer `rg` / `rg --files` for search.
+- For numbers in marimo analyses:
+  - default numeric display: `0` decimal places
+  - use thousands separators
+- Prefer shared helpers over repeated inline HTML/formatting logic.
+- Use `mo.stop(...)` for missing prerequisites in marimo, not `return`.
+- When adding controls in marimo:
+  - avoid reading `.value` in the same cell that creates the UI element
+  - avoid duplicate variable names across cells
+- For embedded Beancount `query` directives:
+  - prefer sourcing them from `entries` instead of duplicating query text when practical
+- Do not add broad abstractions unless reused by at least one app.
