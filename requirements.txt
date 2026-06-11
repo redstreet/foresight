@@ -1,0 +1,7 @@
+anywidget
+beancount
+beanquery
+marimo
+polars
+python-dateutil
+traitlets

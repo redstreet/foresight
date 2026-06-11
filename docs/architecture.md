@@ -1,5 +1,5 @@
 ## Main Files
-- `main.py`
+- `app.py`
   - main marimo app with top-level tabs for retirement, investments, estate, taxes, and expenses
   - loads `BEANCOUNT_FILE` once and shares `entries` / `options` across tabs
 - `retirement/`

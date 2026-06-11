@@ -1,19 +1,35 @@
 # Foresight
 
 Foresight is a marimo dashboard for Beancount. It loads the ledger from
-`BEANCOUNT_FILE` once in `main.py` and shares the parsed entries/options across
+`BEANCOUNT_FILE` once in `app.py` and shares the parsed entries/options across
 the domain tabs.
 
 ## Running
 
 ```sh
-BEANCOUNT_FILE=/path/to/main.beancount marimo run main.py
+BEANCOUNT_FILE=/path/to/main.beancount marimo run app.py
 ```
 
 A small demonstration ledger is available at `examples/sample.beancount`:
 
 ```sh
-BEANCOUNT_FILE=examples/sample.beancount marimo run main.py
+BEANCOUNT_FILE=examples/sample.beancount marimo run app.py
+```
+
+## GitHub Pages Demo
+
+The repository includes a GitHub Actions workflow that exports the sample ledger
+as static HTML and publishes it to GitHub Pages. In GitHub, enable Pages with
+Source set to **GitHub Actions**.
+
+For local export:
+
+```sh
+python -m pip install -r requirements.txt
+BEANCOUNT_FILE=examples/sample.beancount marimo export html app.py \
+  -o site/index.html \
+  --no-include-code \
+  -f
 ```
 
 ## Foresight Config
@@ -115,4 +131,4 @@ Estate > Ownership classifies asset accounts using account metadata:
 ```
 
 Liability accounts do not need this metadata. Their default ownership label is
-set in `main.py` by `liability_community_property`.
+set in `app.py` by `liability_community_property`.
