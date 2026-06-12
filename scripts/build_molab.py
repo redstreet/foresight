@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from __future__ import annotations
 
 import argparse
@@ -51,7 +52,7 @@ def build_artifact(output: Path = DEFAULT_OUTPUT) -> Path:
     source = "\n\n".join(
         [
             build_header(),
-            build_inline_sources(),
+            build_app_preamble(),
             build_app_source(),
         ]
     )
@@ -86,6 +87,11 @@ def build_inline_sources() -> str:
     return "\n\n".join(parts)
 
 
+def build_app_preamble() -> str:
+    source = (ROOT / "app.py").read_text(encoding="utf-8")
+    return "# ---- BEGIN app.py preamble ----\n" + app_preamble(source).rstrip()
+
+
 def strip_relative_imports(source: str) -> str:
     return "\n".join(
         line for line in source.splitlines() if not line.startswith("from .")
@@ -94,9 +100,39 @@ def strip_relative_imports(source: str) -> str:
 
 def build_app_source() -> str:
     source = (ROOT / "app.py").read_text(encoding="utf-8")
+    source = app_cells(source)
     source = strip_internal_import_blocks(source)
+    source = insert_inline_sources(source)
     source = add_sample_ledger_fallback(source)
-    return "# ---- BEGIN app.py ----\n" + source.rstrip() + "\n# ---- END app.py ----\n"
+    return "# ---- BEGIN app.py cells ----\n" + source.rstrip() + "\n# ---- END app.py ----\n"
+
+
+def app_preamble(source: str) -> str:
+    marker = "\n\n@app.cell"
+    if marker not in source:
+        raise ValueError("Could not find first marimo cell in app.py")
+    return source.split(marker, 1)[0]
+
+
+def app_cells(source: str) -> str:
+    marker = "\n\n@app.cell"
+    if marker not in source:
+        raise ValueError("Could not find first marimo cell in app.py")
+    return "@app.cell" + source.split(marker, 1)[1]
+
+
+def insert_inline_sources(source: str) -> str:
+    marker = "    return (\n        anywidget,"
+    if marker not in source:
+        raise ValueError("Could not find import cell return block in app.py")
+    inline_source = textwrap.indent(build_inline_sources(), "    ")
+    replacement = (
+        "    # ---- BEGIN inlined project modules ----\n"
+        f"{inline_source}\n"
+        "    # ---- END inlined project modules ----\n\n"
+        f"{marker}"
+    )
+    return source.replace(marker, replacement, 1)
 
 
 def strip_internal_import_blocks(source: str) -> str:
