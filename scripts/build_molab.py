@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-import textwrap
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,6 +36,62 @@ INLINE_FILES = [
     "modules/retirement/index.py",
     "modules/taxes/gains_minimizer.py",
     "modules/taxes/index.py",
+]
+
+INLINE_EXPORTS = [
+    ("common/libbeanmarimo.py", "table", "bean_table"),
+    ("common/shared.py", "COMMON_TABLE_SECTION_STYLES", "COMMON_TABLE_SECTION_STYLES"),
+    ("common/shared.py", "build_common_styles", "build_common_styles"),
+    ("common/shared.py", "coerce_amount", "coerce_amount"),
+    ("common/shared.py", "format_amount", "format_amount"),
+    ("common/shared.py", "foresight_config_section", "foresight_config_section"),
+    ("common/shared.py", "get_embedded_query", "get_embedded_query"),
+    ("common/shared.py", "get_foresight_config", "get_foresight_config"),
+    ("modules/estate/index.py", "build_estate_view", "build_estate_view"),
+    ("modules/estate/ownership.py", "build_account_metadata_table", "build_account_metadata_table"),
+    ("modules/estate/ownership.py", "build_account_tables", "build_account_tables"),
+    ("modules/estate/ownership.py", "build_account_value_table", "build_account_value_table"),
+    ("modules/estate/ownership.py", "build_ownership_view", "build_ownership_view"),
+    ("modules/estate/beneficiaries.py", "build_beneficiaries_view", "build_beneficiaries_view"),
+    ("modules/estate/beneficiaries.py", "build_beneficiary_tables", "build_beneficiary_tables"),
+    ("modules/expenses/index.py", "build_expenses_domain_view", "build_expenses_domain_view"),
+    ("modules/expenses/analysis.py", "build_analysis_view", "build_analysis_view"),
+    ("modules/expenses/analysis.py", "build_controls", "build_expense_controls"),
+    ("modules/expenses/analysis.py", "build_tree_data", "build_expense_tree_data"),
+    ("modules/expenses/analysis.py", "build_expense_tree_widget_class", "build_expense_tree_widget_class"),
+    ("modules/expenses/analysis.py", "default_controls", "default_expense_controls"),
+    ("modules/expenses/analysis.py", "load_expense_tables", "load_expense_tables"),
+    ("modules/investments/index.py", "build_investments_view", "build_investments_view"),
+    ("modules/investments/asset_allocation.py", "ASSET_ALLOCATION_CONFIG", "ASSET_ALLOCATION_CONFIG"),
+    ("modules/investments/asset_allocation.py", "TOTAL_PATH", "TOTAL_PATH"),
+    ("modules/investments/asset_allocation.py", "build_asset_allocation_data", "build_asset_allocation_data"),
+    ("modules/investments/asset_allocation.py", "build_asset_allocation_detail_widget_class", "build_asset_allocation_detail_widget_class"),
+    ("modules/investments/asset_allocation.py", "build_asset_allocation_tree_widget_class", "build_asset_allocation_tree_widget_class"),
+    ("modules/investments/asset_allocation.py", "build_asset_allocation_view", "build_asset_allocation_view"),
+    ("modules/investments/asset_allocation.py", "detail_rows_for_class", "detail_rows_for_class"),
+    ("modules/investments/asset_allocation.py", "tree_paths", "tree_paths"),
+    ("modules/investments/cash_drag.py", "DEFAULT_CASH_DRAG_CONFIG", "DEFAULT_CASH_DRAG_CONFIG"),
+    ("modules/investments/cash_drag.py", "build_cash_drag_table", "build_cash_drag_table"),
+    ("modules/investments/cash_drag.py", "build_cash_drag_view", "build_cash_drag_view"),
+    ("modules/investments/account_types.py", "DEFAULT_BREAKDOWN_CONFIG", "DEFAULT_BREAKDOWN_CONFIG"),
+    ("modules/investments/account_types.py", "build_account_type_table", "build_account_type_table"),
+    ("modules/investments/account_types.py", "build_account_types_view", "build_account_types_view"),
+    ("modules/investments/account_types.py", "build_brokerage_table", "build_brokerage_table"),
+    ("modules/retirement/index.py", "build_retirement_view", "build_retirement_view"),
+    ("modules/retirement/contributions.py", "build_contributions_view", "build_contributions_view"),
+    ("modules/retirement/contributions.py", "default_year", "default_contributions_year"),
+    ("modules/retirement/contributions.py", "load_hsa_and_roth_tables", "load_hsa_and_roth_tables"),
+    ("modules/retirement/contributions.py", "load_limit_tables", "load_limit_tables"),
+    ("modules/retirement/contributions.py", "load_retirement_table", "load_retirement_table"),
+    ("modules/taxes/index.py", "build_taxes_view", "build_taxes_view"),
+    ("modules/taxes/gains_minimizer.py", "ACCOUNT_FIELD_OPTIONS", "ACCOUNT_FIELD_OPTIONS"),
+    ("modules/taxes/gains_minimizer.py", "DEFAULT_GAINS_MINIMIZER_CONFIG", "DEFAULT_GAINS_MINIMIZER_CONFIG"),
+    ("modules/taxes/gains_minimizer.py", "account_field_label", "account_field_label"),
+    ("modules/taxes/gains_minimizer.py", "build_gains_minimizer_config", "build_gains_minimizer_config"),
+    ("modules/taxes/gains_minimizer.py", "build_gains_minimizer_lots", "build_gains_minimizer_lots"),
+    ("modules/taxes/gains_minimizer.py", "build_gains_minimizer_table_from_lots", "build_gains_minimizer_table_from_lots"),
+    ("modules/taxes/gains_minimizer.py", "build_gains_minimizer_warnings", "build_gains_minimizer_warnings"),
+    ("modules/taxes/gains_minimizer.py", "build_gains_minimizer_view", "build_gains_minimizer_view"),
 ]
 
 INTERNAL_IMPORT_PREFIXES = (
@@ -76,15 +131,36 @@ def build_header() -> str:
 
 
 def build_inline_sources() -> str:
-    parts = []
+    source_entries = []
     for relative_path in INLINE_FILES:
-        path = ROOT / relative_path
-        parts.append(
-            f"# ---- BEGIN {relative_path} ----\n"
-            f"{strip_relative_imports(path.read_text(encoding='utf-8')).rstrip()}\n"
-            f"# ---- END {relative_path} ----"
+        source = strip_relative_imports(
+            (ROOT / relative_path).read_text(encoding="utf-8")
+        ).rstrip()
+        source_entries.append(f"        {relative_path!r}: {source!r},")
+
+    export_lines = [
+        (
+            f"    {alias_name} = "
+            f"__foresight_namespaces[{relative_path!r}][{source_name!r}]"
         )
-    return "\n\n".join(parts)
+        for relative_path, source_name, alias_name in INLINE_EXPORTS
+    ]
+
+    return "\n".join(
+        [
+            "    __foresight_sources = {",
+            *source_entries,
+            "    }",
+            "    __foresight_namespaces = {}",
+            "    for __foresight_name, __foresight_source in __foresight_sources.items():",
+            "        __foresight_namespace = {'__name__': f'foresight_molab.{__foresight_name}'}",
+            "        exec(__foresight_source, __foresight_namespace)",
+            "        __foresight_namespaces[__foresight_name] = __foresight_namespace",
+            "",
+            *export_lines,
+            "    del __foresight_name, __foresight_namespace, __foresight_namespaces, __foresight_source, __foresight_sources",
+        ]
+    )
 
 
 def build_app_preamble() -> str:
@@ -125,10 +201,9 @@ def insert_inline_sources(source: str) -> str:
     marker = "    return (\n        anywidget,"
     if marker not in source:
         raise ValueError("Could not find import cell return block in app.py")
-    inline_source = textwrap.indent(build_inline_sources(), "    ")
     replacement = (
         "    # ---- BEGIN inlined project modules ----\n"
-        f"{inline_source}\n"
+        f"{build_inline_sources()}\n"
         "    # ---- END inlined project modules ----\n\n"
         f"{marker}"
     )
