@@ -32,6 +32,18 @@ BEANCOUNT_FILE=examples/sample.beancount marimo export html app.py \
   -f
 ```
 
+## molab Demo
+
+To build a single-file artifact for <https://molab.marimo.io>:
+
+```sh
+python scripts/build_molab.py
+```
+
+This writes `dist/foresight_molab.py`. The generated file inlines Foresight's
+modules and the sample ledger, so it can run without the repository layout. If
+`BEANCOUNT_FILE` is not set, it uses the bundled sample ledger.
+
 ## Foresight Config
 
 Foresight configuration is read from a Beancount custom directive:

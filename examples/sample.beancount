@@ -2,7 +2,7 @@ option "title" "Foresight Sample Ledger"
 option "operating_currency" "USD"
 
 ; Run with:
-;   BEANCOUNT_FILE=examples/sample.beancount marimo run main.py
+;   BEANCOUNT_FILE=examples/sample.beancount marimo run app.py
 ;
 ; This ledger is deliberately small, but it includes the ingredients used by
 ; every Foresight module: asset allocation metadata, commodity leaf accounts,
